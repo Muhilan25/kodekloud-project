@@ -7,6 +7,7 @@ pipeline {
         MONGO_URL = "mongodb+srv://supercluster.d83jj.mongodb.net/superData"
         SCANNER_HOME = tool('sonarqube-scanner')
         ECR_REPO = "072583797351.dkr.ecr.ap-south-1.amazonaws.com/nodeapp"
+        IMAGE_NAME = "nodeapp"
         IMAGE_TAG = "v{BUILD_NUMBER}"
     }
 
@@ -87,15 +88,33 @@ pipeline {
                         docker login --username AWS --password-stdin \
                         072583797351.dkr.ecr.ap-south-1.amazonaws.com
 
-                        docker build -t nodeapp .
+                        docker build -t ${IMAGE_NAME} .
 
                         docker tag nodeapp:latest \
-                        072583797351.dkr.ecr.ap-south-1.amazonaws.com/nodeapp:${BUILD_NUMBER}
+                        072583797351.dkr.ecr.ap-south-1.amazonaws.com/${IMAGE_NAME}:${IMAGE_TAG}
 
                         docker push \
-                        072583797351.dkr.ecr.ap-south-1.amazonaws.com/nodeapp:${BUILD_NUMBER}
+                        ${ECR_REPO}/${IMAGE_NAME}:${IMAGE_TAG}
                     '''
                 }
+            }
+        }
+
+        stage("trivy image") {
+            steps {
+                sh '''
+                    trivy image ${IMAGE_NAME}:${IMAGE_TAG} \
+                        --severity LOW,MEDIUM \
+                        --exit-code 0 \
+                        --quiet \
+                        --format table -o trivy-image-MEDIUM-results.txt
+
+                    trivy image ${IMAGE_NAME}:${IMAGE_TAG} \
+                        --severity HIGH,CRITICAL \
+                        --exit-code 1 \
+                        --quiet \
+                        --format table -o trivy-image-CRITICAL-results.txt
+                '''
             }
         }
 
