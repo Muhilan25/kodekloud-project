@@ -6,7 +6,7 @@ pipeline {
     environment {
         MONGO_URL = "mongodb+srv://supercluster.d83jj.mongodb.net/superData"
         SCANNER_HOME = tool('sonarqube-scanner')
-        ECR_REPO = "072583797351.dkr.ecr.ap-south-1.amazonaws.com/nodeapp"
+        ECR_REPO = "072583797351.dkr.ecr.ap-south-1.amazonaws.com"
         IMAGE_NAME = "nodeapp"
         IMAGE_TAG = "v${BUILD_NUMBER}"
     }
