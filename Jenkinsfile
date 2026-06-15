@@ -8,7 +8,7 @@ pipeline {
         SCANNER_HOME = tool('sonarqube-scanner')
         ECR_REPO = "072583797351.dkr.ecr.ap-south-1.amazonaws.com/nodeapp"
         IMAGE_NAME = "nodeapp"
-        IMAGE_TAG = "v{BUILD_NUMBER}"
+        IMAGE_TAG = "v${BUILD_NUMBER}"
     }
 
     stages{
@@ -107,13 +107,13 @@ pipeline {
                         --severity LOW,MEDIUM \
                         --exit-code 0 \
                         --quiet \
-                        --format table -o trivy-image-MEDIUM-results.txt
+                        --format json -o trivy-image-MEDIUM-results.json
 
                     trivy image ${IMAGE_NAME}:${IMAGE_TAG} \
                         --severity HIGH,CRITICAL \
                         --exit-code 1 \
                         --quiet \
-                        --format table -o trivy-image-CRITICAL-results.txt
+                        --format json -o trivy-image-CRITICAL-results.json
                 '''
             }
         }
@@ -126,6 +126,8 @@ pipeline {
 
              publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, icon: '', keepAll: true, reportDir:
              './', reportFiles: 'dependency-check-jenkins.html', reportName: 'Depedency Check HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+
+             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: true, reportDir: 'trivy-image-MEDIUM-results.json', reportFiles: 'trivy-image-MEDIUM-vul', reportName: 'HTML Report', reportTitles: '', useWrapperFileDirectly: true])
         }
     }
 }
