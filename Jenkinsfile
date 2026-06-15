@@ -5,7 +5,7 @@ pipeline {
     }
     environment {
         MONGO_URL = "mongodb+srv://supercluster.d83jj.mongodb.net/superData"
-        SONAR_SCANNER_HOME = tool('sonarqube-scanner')
+        SCANNER_HOME = tool('sonarqube-scanner')
     }
 
     stages{
@@ -51,13 +51,14 @@ pipeline {
 
         stage("SAST") {
             steps {
-                sh '''
-                    $SONAR_SCANNER_HOME/bin/sonar-scanner \
+                withSonarQubeEnv('sonar') {
+                    sh '''
+                     $SCANNER_HOME/bin/sonar-scanner \
+                        -Dsonar.projectName=Kodekloud-project \
                         -Dsonar.projectKey=Kodekloud-project \
                         -Dsonar.sources=. \
-                        -Dsonar.host.url=http://13.203.159.26:9000 \
-                        -Dsonar.token=sqp_688502fee7bdc6a4a4e2fa0a647d43c1eab2fd16
-                '''
+                    '''
+                }
             }
         }
 
