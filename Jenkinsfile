@@ -3,7 +3,7 @@ pipeline {
     tools {
         nodejs 'nodejs-22.6.0'
     }
-    environments {
+    environment {
         MONGO_URL = "mongodb+srv://supercluster.d83jj.mongodb.net/superData"
     }
 
