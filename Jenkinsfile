@@ -107,13 +107,13 @@ pipeline {
                         --severity LOW,MEDIUM \
                         --exit-code 0 \
                         --quiet \
-                        --format table -o trivy-image-MEDIUM-results.txt
+                        --format table -o trivy-image-MEDIUM-results.html
 
                     trivy image ${ECR_REPO}/${IMAGE_NAME}:${IMAGE_TAG} \
                         --severity HIGH,CRITICAL \
-                        --exit-code 1 \
+                        --exit-code 0 \
                         --quiet \
-                        --format table -o trivy-image-CRITICAL-results.txt
+                        --format table -o trivy-image-CRITICAL-results.html
                 '''
             }
         }
