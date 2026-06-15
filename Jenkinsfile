@@ -107,13 +107,13 @@ pipeline {
                         --severity LOW,MEDIUM \
                         --exit-code 0 \
                         --quiet \
-                        --format json -o trivy-image-MEDIUM-results.json
+                        --format table -o trivy-image-MEDIUM-results.txt
 
                     trivy image ${ECR_REPO}/${IMAGE_NAME}:${IMAGE_TAG} \
                         --severity HIGH,CRITICAL \
                         --exit-code 1 \
                         --quiet \
-                        --format json -o trivy-image-CRITICAL-results.json
+                        --format table -o trivy-image-CRITICAL-results.txt
                 '''
             }
         }
@@ -127,7 +127,7 @@ pipeline {
              publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, icon: '', keepAll: true, reportDir:
              './', reportFiles: 'dependency-check-jenkins.html', reportName: 'Depedency Check HTML Report', reportTitles: '', useWrapperFileDirectly: true])
 
-             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: true, reportDir: 'trivy-image-MEDIUM-results.json', reportFiles: 'trivy-image-MEDIUM-vul', reportName: 'HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+             
         }
     }
 }
