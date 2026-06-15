@@ -1,4 +1,4 @@
-def slackNotificationMethod(string buildStatus = 'STARTED') {
+def slackNotificationMethod(String buildStatus = 'STARTED') {
     buildStatus = buildStatus ?: 'SUCCESS'
 
     def color
@@ -139,7 +139,7 @@ pipeline {
     post {
         always {
             slackNotificationMethod("${currentBuild.result}")
-            
+
              junit allowEmptyResults: true, testResults: 'dependency-check-junit.xml'
 
              publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, icon: '', keepAll: true, reportDir:
