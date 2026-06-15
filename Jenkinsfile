@@ -73,13 +73,29 @@ pipeline {
             }
         }
 
-        stage("docker build") {
+
+
+        stage('Docker Build & Push') {
             steps {
-                sh '''
-                    aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 072583797351.dkr.ecr.ap-south-1.amazonaws.com
-                    docker build -t nodeapp .
-                    docker tag nodeapp:${ECR_REPO}/nodeapp:${IMAGE_TAG}
-                '''
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-cred'
+                ]]) {
+
+                    sh '''
+                        aws ecr get-login-password --region ap-south-1 | \
+                        docker login --username AWS --password-stdin \
+                        072583797351.dkr.ecr.ap-south-1.amazonaws.com
+
+                        docker build -t nodeapp .
+
+                        docker tag nodeapp:latest \
+                        072583797351.dkr.ecr.ap-south-1.amazonaws.com/nodeapp:${BUILD_NUMBER}
+
+                        docker push \
+                        072583797351.dkr.ecr.ap-south-1.amazonaws.com/nodeapp:${BUILD_NUMBER}
+                    '''
+                }
             }
         }
 
