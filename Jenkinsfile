@@ -1,3 +1,19 @@
+def slackNotificationMethod(string buildStatus = 'STARTED') {
+    buildStatus = buildStatus ?: 'SUCCESS'
+
+    def color
+    if (buildStatus == 'SUCCESS') {
+        color = '#47ec05'
+    }else if (buildStatus == 'UNSTABLE') {
+        color = '#d5ee0d'
+    } else {
+        color = '#ec2805'
+    }
+
+    def msg = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}"
+    slackSend(color: color, message: msg)
+}
+
 pipeline {
     agent any
     tools {
@@ -122,6 +138,8 @@ pipeline {
     }
     post {
         always {
+            slackNotificationMethod("${currentBuild.result}")
+            
              junit allowEmptyResults: true, testResults: 'dependency-check-junit.xml'
 
              publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, icon: '', keepAll: true, reportDir:
