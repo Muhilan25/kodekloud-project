@@ -15,38 +15,29 @@ pipeline {
             }
         }
 
-         stage('Check Scanner') {
-            steps {
-                sh '''
-                echo $SCANNER_HOME
-                ls -la $SCANNER_HOME
-                '''
+        stage("Dependency scanning") {
+            parallel {
+                stage("NPM Dependency Audit") {
+                    steps {
+                        sh '''
+                            npm audit --audit-level=critical
+                            echo $?
+                        '''
+                    }
+                }
+
+                stage("OWASP Dependency check") {
+                    steps {
+                        dependencyCheck additionalArguments: '''
+                            --scan \'./\'
+                            --out  \'./\'
+                            --format  \'ALL\'
+                            --prettyPrint''', odcInstallation: 'OWASP-DepCheck-10'
+                        dependencyCheckPublisher failedTotalCritical: 1, pattern: 'dependency-check-report.xml', stopBuild: true            
+                    }
+                }
             }
         }
-
-        // stage("Dependency scanning") {
-        //     parallel {
-        //         stage("NPM Dependency Audit") {
-        //             steps {
-        //                 sh '''
-        //                     npm audit --audit-level=critical
-        //                     echo $?
-        //                 '''
-        //             }
-        //         }
-
-        //         stage("OWASP Dependency check") {
-        //             steps {
-        //                 dependencyCheck additionalArguments: '''
-        //                     --scan \'./\'
-        //                     --out  \'./\'
-        //                     --format  \'ALL\'
-        //                     --prettyPrint''', odcInstallation: 'OWASP-DepCheck-10'
-        //                 dependencyCheckPublisher failedTotalCritical: 1, pattern: 'dependency-check-report.xml', stopBuild: true            
-        //             }
-        //         }
-        //     }
-        // }
 
         // stage("unit testing") {
         //     steps {
@@ -58,27 +49,27 @@ pipeline {
         //     }
         // }
 
-        // stage("SAST") {
-        //     steps {
-        //         withSonarQubeEnv('sonar') {
-        //             sh '''
-        //              ${SCANNER_HOME}/bin/sonar-scanner \
-        //                 -Dsonar.projectName=Kodekloud-project \
-        //                 -Dsonar.projectKey=Kodekloud-project \
-        //                 -Dsonar.sources=. \
-        //             '''
-        //         }
-        //     }
-        // }
+        stage("SAST") {
+            steps {
+                withSonarQubeEnv('sonar') {
+                    sh '''
+                     ${SCANNER_HOME}/bin/sonar-scanner \
+                        -Dsonar.projectName=Kodekloud-project \
+                        -Dsonar.projectKey=Kodekloud-project \
+                        -Dsonar.sources=. \
+                    '''
+                }
+            }
+        }
 
 
     }
-    // post {
-    //     always {
-    //          junit allowEmptyResults: true, testResults: 'dependency-check-junit.xml'
+    post {
+        always {
+             junit allowEmptyResults: true, testResults: 'dependency-check-junit.xml'
 
-    //          publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, icon: '', keepAll: true, reportDir:
-    //          './', reportFiles: 'dependency-check-jenkins.html', reportName: 'Depedency Check HTML Report', reportTitles: '', useWrapperFileDirectly: true])
-    //     }
-    // }
+             publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, icon: '', keepAll: true, reportDir:
+             './', reportFiles: 'dependency-check-jenkins.html', reportName: 'Depedency Check HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+        }
+    }
 }
