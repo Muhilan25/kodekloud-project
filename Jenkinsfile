@@ -56,7 +56,7 @@ pipeline {
                      ${SCANNER_HOME}/bin/sonar-scanner \
                         -Dsonar.projectName=Kodekloud-project \
                         -Dsonar.projectKey=Kodekloud-project \
-                        -Dsonar.sources=. \
+                        -Dsonar.sources=. 
                     '''
                 }
             }
