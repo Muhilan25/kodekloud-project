@@ -62,6 +62,14 @@ pipeline {
             }
         }
 
+        stage("quality gate") {
+            steps {
+                timeout(time: 1, unit: 'HOURS') {
+                    waitForQualityGate abortPipeline: false
+                }
+            }
+        }
+
 
     }
     post {
