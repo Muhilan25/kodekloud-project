@@ -103,13 +103,13 @@ pipeline {
         stage("trivy image") {
             steps {
                 sh '''
-                    trivy image ${IMAGE_NAME}:${IMAGE_TAG} \
+                    trivy image ${ECR_REPO}/${IMAGE_NAME}:${IMAGE_TAG} \
                         --severity LOW,MEDIUM \
                         --exit-code 0 \
                         --quiet \
                         --format json -o trivy-image-MEDIUM-results.json
 
-                    trivy image ${IMAGE_NAME}:${IMAGE_TAG} \
+                    trivy image ${ECR_REPO}/${IMAGE_NAME}:${IMAGE_TAG} \
                         --severity HIGH,CRITICAL \
                         --exit-code 1 \
                         --quiet \
