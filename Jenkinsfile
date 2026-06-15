@@ -5,10 +5,9 @@ pipeline {
     }
 
     stages{
-        stage("node -v") {
+        stage("install dependencies") {
             steps {
-                sh 'node -v'
-                sh 'npm -v'
+                sh 'npm install --no-audit'
             }
         }
     }
